@@ -9,19 +9,38 @@ DIR="$(pwd)/jfrog"
 mkdir -p "${DIR}"
 
 # Install Cfssl & Cfssljson
-curl -s -L -o cfssl https://github.com/cloudflare/cfssl/releases/download/v1.6.0/cfssl_1.6.0_linux_amd64
-curl -s -L -o cfssljson https://github.com/cloudflare/cfssl/releases/download/v1.6.0/cfssljson_1.6.0_linux_amd64
-curl -s -L -o cfssl-certinfo https://github.com/cloudflare/cfssl/releases/download/v1.6.0/cfssl-certinfo_1.6.0_linux_amd64
-chmod +x cfssl*
-mv cfssl* /usr/local/bin/
+if ! command -v cfssl &> /dev/null;
+then
+ curl -s -L -o cfssl https://github.com/cloudflare/cfssl/releases/download/v1.6.0/cfssl_1.6.0_linux_amd64
+ chmod +x cfssl
+ mv cfssl /usr/local/bin/  
+fi
 
+if ! command -v cfssljson &> /dev/null;
+then
+ curl -s -L -o cfssljson https://github.com/cloudflare/cfssl/releases/download/v1.6.0/cfssljson_1.6.0_linux_amd64
+ chmod +x cfssljson
+ mv cfssljson /usr/local/bin/  
+fi
+
+if ! command -v cfssl-certinfo &> /dev/null;
+then
+ curl -s -L -o cfssl-certinfo https://github.com/cloudflare/cfssl/releases/download/v1.6.0/cfssl-certinfo_1.6.0_linux_amd64
+ chmod +x cfssl-certinfo
+ mv cfssl-certinfo /usr/local/bin/  
+fi
+
+if [ -e "/etc/docker/daemon.json" ]
+then
+ echo "File (/etc/docker/daemon.json) exists."
+else
 cat << EOF > /etc/docker/daemon.json
 {
   "insecure-registries" : ["jfregistry.$HIP.nip.io"]
 }
 EOF
-
 systemctl restart docker
+fi
 
 # Create Namespace
 kubectl create ns $JNS
