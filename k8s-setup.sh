@@ -40,6 +40,14 @@ then
   fi    
 fi
 
+# Setup for insecure registry
+cat << EOF > /etc/docker/daemon.json
+{
+  "insecure-registries" : ["jfregistry.$HIP.nip.io"]
+}
+EOF
+systemctl restart docker
+
 # Install K3D
 if ! command -v k3d &> /dev/null;
 then
