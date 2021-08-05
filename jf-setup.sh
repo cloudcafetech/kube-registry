@@ -119,6 +119,7 @@ metadata:
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: 'true'
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m    
 spec:
   tls:
     - hosts:
