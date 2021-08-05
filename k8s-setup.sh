@@ -111,7 +111,7 @@ then
 fi
 
 # Download files
-https://raw.githubusercontent.com/cloudcafetech/kube-registry/main/jf-setup.sh
+wget https://raw.githubusercontent.com/cloudcafetech/kube-registry/main/jf-setup.sh
 chmod +x jf-setup.sh
 
 if [[ "$CTXTYPE" == "kind" ]]; then
