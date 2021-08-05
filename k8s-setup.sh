@@ -111,8 +111,8 @@ then
 fi
 
 # Download files
-#https://raw.githubusercontent.com/cloudcafetech/vault-on-k8s/main/vault-setup.sh
-#chmod +x vault-setup.sh
+https://raw.githubusercontent.com/cloudcafetech/kube-registry/main/jf-setup.sh
+chmod +x jf-setup.sh
 
 if [[ "$CTXTYPE" == "kind" ]]; then
 # Kubernetes Cluster Creation
@@ -167,6 +167,18 @@ done
 
 else
 # Cluster Creation using K3D
+cat <<EOF > helm-ingress-nginx.yaml
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: ingress-controller-nginx
+  namespace: kube-system
+spec:
+  repo: https://kubernetes.github.io/ingress-nginx
+  chart: ingress-nginx
+  version: 3.7.1
+  targetNamespace: kube-system
+EOF
 k3d cluster create $CLUSTER0 --api-port $HIP:6551 -p 80:80@loadbalancer -p 443:443@loadbalancer --k3s-server-arg '--no-deploy=traefik' --volume "$(pwd)/helm-ingress-nginx.yaml:/var/lib/rancher/k3s/server/manifests/helm-ingress-nginx.yaml"
 k3d kubeconfig get $CLUSTER0 >$CLUSTER0-kubeconf
 
