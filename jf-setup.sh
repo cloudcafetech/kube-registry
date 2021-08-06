@@ -8,26 +8,10 @@ JNS=kube-registry
 DIR="$(pwd)/jfrog"
 mkdir -p "${DIR}"
 
-# Install Cfssl & Cfssljson
-if ! command -v cfssl &> /dev/null;
+# Install Openssl
+if ! command -v openssl &> /dev/null;
 then
- curl -s -L -o cfssl https://github.com/cloudflare/cfssl/releases/download/v1.6.0/cfssl_1.6.0_linux_amd64
- chmod +x cfssl
- mv cfssl /usr/local/bin/  
-fi
-
-if ! command -v cfssljson &> /dev/null;
-then
- curl -s -L -o cfssljson https://github.com/cloudflare/cfssl/releases/download/v1.6.0/cfssljson_1.6.0_linux_amd64
- chmod +x cfssljson
- mv cfssljson /usr/local/bin/  
-fi
-
-if ! command -v cfssl-certinfo &> /dev/null;
-then
- curl -s -L -o cfssl-certinfo https://github.com/cloudflare/cfssl/releases/download/v1.6.0/cfssl-certinfo_1.6.0_linux_amd64
- chmod +x cfssl-certinfo
- mv cfssl-certinfo /usr/local/bin/  
+ yum install -q -y openssl  
 fi
 
 if [ -e "/etc/docker/daemon.json" ]
@@ -44,76 +28,6 @@ fi
 
 # Create Namespace
 kubectl create ns $JNS
-
-# First, create a Certificate Authority config file
-cat << EOF > "${DIR}/ca-config.json"
-{
-    "signing": {
-        "default": {
-            "expiry": "43800h"
-        },
-        "profiles": {
-            "server": {
-                "expiry": "43800h",
-                "usages": [
-                    "signing",
-                    "key encipherment",
-                    "server auth"
-                ]
-            },
-            "client": {
-                "expiry": "43800h",
-                "usages": [
-                    "signing",
-                    "key encipherment",
-                    "client auth"
-                ]
-            }
-        }
-    }
-}
-EOF
-
-cat << EOF > "${DIR}/ca-csr.json"
-{
-    "CN": "My own CA",
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-            "C": "US",
-            "L": "CA",
-            "O": "My Company Name",
-            "ST": "San Francisco",
-            "OU": "Org Unit 1",
-            "OU": "Org Unit 2"
-        }
-    ]
-}
-EOF
-
-cat << EOF > "${DIR}/server.json"
-{
-    "CN": "jfregistry.$HIP.nip.io",
-    "hosts": [
-        "jfregistry.$PUB.nip.io",
-        "jfregistry.$HIP.nip.io"
-    ],
-    "key": {
-        "algo": "ecdsa",
-        "size": 256
-    },
-    "names": [
-        {
-            "C": "US",
-            "L": "CA",
-            "ST": "San Francisco"
-        }
-    ]
-}
-EOF
 
 # Create Custom helm value for jfrog registry
 cat << EOF > "${DIR}/jfrog-values.yaml"
@@ -169,11 +83,6 @@ spec:
 EOF
 
 # Generate Certificates
-cfssl gencert -initca "${DIR}/ca-csr.json" | cfssljson -bare "${DIR}/ca" -
-cfssl gencert -ca="${DIR}/ca.pem" -ca-key="${DIR}/ca-key.pem" -config="${DIR}/ca-config.json" -profile=server "${DIR}/server.json" | cfssljson -bare "${DIR}/server"
-
-# Create Kubernetes secrets
-#kubectl create secret tls artifactory-tls --cert="${DIR}/server.pem" --key="${DIR}/server-key.pem" -n $JNS
 if [ -e "certgen.sh" ]
 then
  echo "File (certgen.sh) exists."
@@ -182,6 +91,8 @@ else
  chmod +x certgen.sh
 fi
 ./certgen.sh
+
+# Create Kubernetes secrets
 kubectl create secret tls artifactory-tls --cert=tls/server.crt --key=tls/server.key -n $JNS
 
 # Setup deployment using Helm
