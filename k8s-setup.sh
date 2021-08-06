@@ -127,7 +127,9 @@ fi
 
 # Download files
 wget https://raw.githubusercontent.com/cloudcafetech/kube-registry/main/jf-setup.sh
+wget https://raw.githubusercontent.com/cloudcafetech/kube-registry/main/certgen.sh
 chmod +x jf-setup.sh
+chmod +x certgen.sh
 
 if [[ "$CTXTYPE" == "kind" ]]; then
 # Kubernetes Cluster Creation
