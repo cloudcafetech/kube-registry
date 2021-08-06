@@ -174,6 +174,12 @@ cfssl gencert -ca="${DIR}/ca.pem" -ca-key="${DIR}/ca-key.pem" -config="${DIR}/ca
 
 # Create Kubernetes secrets
 #kubectl create secret tls artifactory-tls --cert="${DIR}/server.pem" --key="${DIR}/server-key.pem" -n $JNS
+if [ -e "certgen.sh" ]
+then
+ echo "File (certgen.sh) exists."
+else
+Wget 
+fi
 ./certgen.sh
 kubectl create secret tls artifactory-tls --cert=tls/server.crt --key=tls/server.key -n $JNS
 
