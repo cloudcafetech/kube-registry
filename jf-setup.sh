@@ -173,7 +173,9 @@ cfssl gencert -initca "${DIR}/ca-csr.json" | cfssljson -bare "${DIR}/ca" -
 cfssl gencert -ca="${DIR}/ca.pem" -ca-key="${DIR}/ca-key.pem" -config="${DIR}/ca-config.json" -profile=server "${DIR}/server.json" | cfssljson -bare "${DIR}/server"
 
 # Create Kubernetes secrets
-kubectl create secret tls artifactory-tls --cert="${DIR}/server.pem" --key="${DIR}/server-key.pem" -n $JNS
+#kubectl create secret tls artifactory-tls --cert="${DIR}/server.pem" --key="${DIR}/server-key.pem" -n $JNS
+../certgen.sh
+kubectl create secret tls artifactory-tls --cert=tls/server.crt --key=tls/server.key -n $JNS
 
 # Setup deployment using Helm
 helm repo add jfrog https://charts.jfrog.io
