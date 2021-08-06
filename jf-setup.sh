@@ -174,7 +174,7 @@ cfssl gencert -ca="${DIR}/ca.pem" -ca-key="${DIR}/ca-key.pem" -config="${DIR}/ca
 
 # Create Kubernetes secrets
 #kubectl create secret tls artifactory-tls --cert="${DIR}/server.pem" --key="${DIR}/server-key.pem" -n $JNS
-../certgen.sh
+./certgen.sh
 kubectl create secret tls artifactory-tls --cert=tls/server.crt --key=tls/server.key -n $JNS
 
 # Setup deployment using Helm
