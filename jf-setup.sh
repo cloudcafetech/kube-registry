@@ -24,6 +24,7 @@ cat << EOF > /etc/docker/daemon.json
 }
 EOF
 systemctl restart docker
+sleep 45
 fi
 
 # Create Namespace
