@@ -178,7 +178,8 @@ if [ -e "certgen.sh" ]
 then
  echo "File (certgen.sh) exists."
 else
-Wget 
+ wget https://raw.githubusercontent.com/cloudcafetech/kube-registry/main/certgen.sh
+ chmod +x certgen.sh
 fi
 ./certgen.sh
 kubectl create secret tls artifactory-tls --cert=tls/server.crt --key=tls/server.key -n $JNS
