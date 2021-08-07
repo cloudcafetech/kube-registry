@@ -103,11 +103,3 @@ helm upgrade --install jfrog-container-registry -f "${DIR}/jfrog-values.yaml" --
 
 # Create Kubernetes Ingress
 kubectl create -f "${DIR}/ingress.yaml"  -n $JNS
-
-exit
-
-export JFROG="jfregistry.$HIP.nip.io"
-docker pull nginx
-docker login -u admin ${JFROG}
-docker tag nginx:latest ${JFROG}/prod/nginx:latest
-docker push ${JFROG}/prod/nginx:latest
